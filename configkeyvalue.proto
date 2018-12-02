@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+message ClientPutRequest {
+    uint32 id = 1;
+    uint32 key = 2;
+    string value = 3;
+    uint32 consistencylevel = 4; 
+}
+
+message ClientGetRequest {
+    uint32 id = 1;
+    uint32 key = 2;
+    uint32 consistencylevel = 3;
+}
+
+message ClientResponse {
+    uint32 id = 1;
+    uint32 key = 2;
+    bool status = 3;
+    string value = 4;
+}
+
+message ReplicaPutRequest {
+    uint32 id = 1;
+    uint32 key = 2;
+    string value = 3;
+    uint32 timestamp = 4;
+}
+
+message ReplicaGetRequest {
+    uint32 id = 1;
+    uint32 key = 2;
+    uint32 timestamp = 3;
+}
+
+message ReplicaResponse {
+    uint32 id = 1;
+    uint32 key = 2;
+    bool status = 3;
+    string value = 4;
+    uint32 timestamp = 5;
+    string nodeid = 6;
+}
+
+
+message KeyValueMessage {
+  oneof keyvaluemessage {
+    ClientPutRequest clientputrequest = 1;
+    ClientGetRequest clientgetrequest = 2;
+    ClientResponse clientresponse = 3;
+    ReplicaPutRequest replicaputrequest = 4;
+    ReplicaGetRequest replicagetrequest = 5;
+    ReplicaResponse replicaresponse = 6;
+  }
+}
