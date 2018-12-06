@@ -1,0 +1,22 @@
+
+Key-Value Store with Configurable Consistency
+
+Programming language used: Python2.7
+Tools:Ubuntu terminal 
+Compilation of the code: (1)In multiple terminals run the following command :
+	For the client:
+		python client.py 128.226.114.203 9091
+	For the modes:
+	1: HINTED-HANDOFF
+	python coordinator.py node1 9001 replicas.txt HINTED-HANDOFF.
+	GET <Consistency-level> <Key>
+	PUT <Consistency-level> <Key> <Value>
+	2:  READ-REPAIR
+	python coordinator.py node1 9001 replicas.txt READ-REPAIR.
+	GET <Consistency-level> <Key>
+	PUT <Consistency-level> <Key> <Value>
+ Tasks by the group members: 
+	(1)Mehul Bhuva:Implementation of the remaining Hinted HandOff  and 	   		    		ReadRepair.
+	(2)Akshata Nayak:Hinted HandOff implementation done 50%and perfromed     		testing of the test cases.
+ 	(3) Completion status of the assignment: Completed and tested fully on 	         	      remote machine.WQ
+
