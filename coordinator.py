@@ -71,7 +71,7 @@ class replica(object):
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         		s.connect((replicaList[replicaname][1], int(replicaList[replicaname][2])))
 			putrequestmessage = configkeyvalue_pb2.ReplicaPutRequest()
-        		putrequestmessage.id = int(replicaname)
+        		putrequestmessage.id = int(nodeName[0])
         		putrequestmessage.key = data.clientputrequest.key
 			putrequestmessage.value = data.clientputrequest.value
 			putrequestmessage.timestamp = replicatimestamp
@@ -86,11 +86,11 @@ class replica(object):
 	def sendupdaterequestreplica(self,originalreplicaname,originalkey,originalvalue,sendupdatetimestamp):
 		try:
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        		s.connect((replicaList[replicaname][1], int(replicaList[replicaname][2])))
+        		s.connect((replicaList[originalreplicaname][1], int(replicaList[originalreplicaname][2])))
 			putrequestmessage = configkeyvalue_pb2.ReplicaPutRequest()
 			print "updateing replica"
 			print originalreplicaname
-        		putrequestmessage.id = int(originalreplicaname)
+        		putrequestmessage.id = int(nodeName[0])
         		putrequestmessage.key = originalkey
 			putrequestmessage.value = originalvalue
 			putrequestmessage.timestamp = sendupdatetimestamp
@@ -155,6 +155,7 @@ class replica(object):
 					self.sendupdaterequestreplica(replica2,clientkey,self.KeyValueDict[clientkey][value] ,self.KeyValueDict[clientkey][timestamp])
 				if(self.KeyValueDict[clientkey][timestamp] > data3.replicaresponse.timestamp):
 					self.sendupdaterequestreplica(replica3,clientkey,self.KeyValueDict[clientkey][value] ,self.KeyValueDict[clientkey][timestamp])
+				return self.KeyValueDict[clientkey][value]
 			else :
 				if(data2 != None):
 					return self.KeyValueDict[clientkey][value]
@@ -169,14 +170,19 @@ class replica(object):
 		else :
 			data1 = self.sendgetrequestreplica(replica1,clientkey)
 			print "printing"
-			print data1.replicaresponse.value
+			print data1
 			if clientConsistency == 1:
 				return data1.replicaresponse.value
 			data2 = self.sendgetrequestreplica(replica2,clientkey)
+			print data2
+			
 			data3 = self.sendgetrequestreplica(replica3,clientkey)
+			print data3
 			if consistencytype == 2:
 				checkvalue = self.checkts(data1,data2,data3)
+				print checkvalue
 				if(checkvalue == 1):
+					print "inside check value"
 					self.sendupdaterequestreplica(replica2,clientkey,data1.replicaresponse.value,data1.replicaresponse.timestamp)
 					self.sendupdaterequestreplica(replica3,clientkey,data1.replicaresponse.value,data1.replicaresponse.timestamp)
 				if(checkvalue == 2):
@@ -230,7 +236,7 @@ class replica(object):
 		if(clientkey <= 63 and clientkey >= 0 and int(fourthreplica) == int(nodeName[0])) :
 			return self.handleputreplica(firstreplica,secondreplica,thirdreplica,clientkey,clientConsistency,consistencytype)
 		elif(clientkey <= 127 and clientkey >= 64 and int(fourthreplica) == int(nodeName[0])) :
-			return self.handleputreplica(0,secondreplica,thirdreplica,clientkey,clientConsistency,consistencytype,consistencytype)
+			return self.handleputreplica(0,secondreplica,thirdreplica,clientkey,clientConsistency,consistencytype)
 		elif(clientkey <= 191 and clientkey >= 128 and int(fourthreplica) == int(nodeName[0])) :
 			return self.handleputreplica(0,firstreplica,thirdreplica,clientkey,clientConsistency,consistencytype)
 		elif(clientkey <= 255 and clientkey >= 192 and int(fourthreplica) == int(nodeName[0])) :
@@ -576,12 +582,8 @@ class replica(object):
 				print replicaList[data.replicaputrequest.id][2]
 				print k[0]
 				print k[1]
-				print int(k[1])
-				print int(replicaList[data.replicaputrequest.id][2])
-				portHinted = int(replicaList[data.replicaputrequest.id][2])+1
-				print portHinted
-				
-        			if k[0] == replicaList[data.replicaputrequest.id][1] and int(k[1]) == portHinted :
+								
+        			if k[0] == replicaList[data.replicaputrequest.id][1] and int(k[1]) == int(replicaList[data.replicaputrequest.id][2]):
 					print ("Hinted handoff Process to replica store %s:%s\n" % (k[0], k[1]))
             				for key in v:
                 				s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -590,8 +592,8 @@ class replica(object):
         					putrequestmessage.id = data.replicaputrequest.id
 						for k in key:
         						putrequestmessage.key = k
-    							putrequestmessage.value = k[data.replicaputrequest.key][value]
-							putrequestmessage.timestamp = k[data.replicaputrequest.key][timestamp]
+    							putrequestmessage.value = key[k][value]
+							putrequestmessage.timestamp = key[k][timestamp]
         					message = configkeyvalue_pb2.KeyValueMessage()
         					message.replicaputrequest.CopyFrom(putrequestmessage)
 						removed.append(k)
